@@ -7,7 +7,8 @@ tours = 0
 jeu_fini = False # Une variable pour savoir si on doit arrêter
 mode_jeu = 0
 signe_ia = ""
-#choix = -1 # Valeur par défaut invalide
+difficulte = 0
+choix = 0 # Valeur par défaut invalide
 # Un tableau 3x3 vide
 plateau = [
     [" ", " ", " "], # Ligne 0
@@ -27,17 +28,13 @@ def afficher_grille(p):
 def verifier_victoire(plateau, symbole):
     # Lignes
     for ligne in plateau:
-        if ligne[0] == ligne[1] == ligne[2] == symbole: 
-            return True
+        if ligne[0] == ligne[1] == ligne[2] == symbole: return True
     # Colonnes
     for col in range(3):
-        if plateau[0][col] == plateau[1][col] == plateau[2][col] == symbole: 
-            return True
+        if plateau[0][col] == plateau[1][col] == plateau[2][col] == symbole: return True
     # Diagonales
-    if plateau[0][0] == plateau[1][1] == plateau[2][2] == symbole: 
-        return True
-    if plateau[0][2] == plateau[1][1] == plateau[2][0] == symbole: 
-        return True
+    if plateau[0][0] == plateau[1][1] == plateau[2][2] == symbole: return True
+    if plateau[0][2] == plateau[1][1] == plateau[2][0] == symbole: return True
     return False
 
 # Fonction IA pour choisir une case aléatoire
@@ -52,7 +49,45 @@ def ordinateur(board, signe):
     if not cases_libres:
         return False
         
-    return random.choice(cases_libres)
+    if difficulte == 1: # FACILE : coup aléatoire
+        return random.choice(cases_libres)
+    elif difficulte == 2: # NORMAL : 50% aléatoire, 50% bon coup
+        if random.random() < 0.5:
+            return random.choice(cases_libres)
+        else:
+            # Essayer de gagner
+            for coup in cases_libres:
+                ligne = coup // 3
+                colonne = coup % 3
+                board[ligne][colonne] = signe
+                if verifier_victoire(board, signe):
+                    board[ligne][colonne] = " "
+                    return coup
+                board[ligne][colonne] = " "
+            # Sinon coup aléatoire
+            return random.choice(cases_libres)
+    elif difficulte == 3: # DIFFICILE : toujours le bon coup
+        # Essayer de gagner
+        for coup in cases_libres:
+            ligne = coup // 3
+            colonne = coup % 3
+            board[ligne][colonne] = signe
+            if verifier_victoire(board, signe):
+                board[ligne][colonne] = " "
+                return coup
+            board[ligne][colonne] = " "
+        # Bloquer l'adversaire
+        adversaire = "O" if signe == "X" else "X"
+        for coup in cases_libres:
+            ligne = coup // 3
+            colonne = coup % 3
+            board[ligne][colonne] = adversaire
+            if verifier_victoire(board, adversaire):
+                board[ligne][colonne] = " "
+                return coup
+            board[ligne][colonne] = " "
+        # Sinon coup aléatoire
+        return random.choice(cases_libres)
 
 # Fonction pour nettoyer l'écran
 def nettoyer_ecran():
@@ -69,11 +104,24 @@ print("Bienvenue dans le jeu du Morpion !")
 while mode_jeu not in [1, 2]:
     try:
         mode_jeu = int(input("VS IA(1) ou vs J2(2): "))
+        if mode_jeu not in [1, 2]:
+            print("Erreur : Le chiffre doit être 1 ou 2.")
     except ValueError:
         print("veuiller choisir un mode de jeu valide. (1 ou 2)")
         continue
 
-# Choix du symbole du joueur.
+# Si mode IA, choix de la difficulté
+if mode_jeu == 1:
+    while difficulte not in [1, 2, 3]:
+        try:
+            difficulte = int(input("Difficulté IA : 1=Facile, 2=Normal, 3=Difficile : "))
+            if difficulte not in [1, 2, 3]:
+                print("Erreur : Le chiffre doit être 1, 2 ou 3.")
+        except ValueError:
+            print("Veuillez choisir une difficulté valide. (1, 2 ou 3)")
+            continue
+
+# Choix du symbole du joueur
 while joueur_actuel not in ["X", "O"]:
     choix = input("Qui commence ? (Tapez X ou O) : ")
     joueur_actuel = choix.upper() # On convertit en majuscule
@@ -104,7 +152,6 @@ while tours < 9 and not jeu_fini:
             print("Erreur : Entrez un chiffre !")
             input("Appuyez sur Entrée pour continuer...")
             continue # On recommence la boucle
-
     # Vérification que le chiffre est bon
     if 0 <= choix <= 8:
         # Conversion
@@ -135,7 +182,6 @@ while tours < 9 and not jeu_fini:
     else:
         print("Le chiffre doit être entre 0 et 8.Réessayez.")
         input("Appuyez sur Entrée pour continuer...")
-
 if tours == 9 and not jeu_fini:
     nettoyer_ecran()
     afficher_grille(plateau)
