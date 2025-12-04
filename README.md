@@ -1,8 +1,10 @@
 # Projet Tictactoe
 
-> **Titre :** Jeu du morpion réaliser dans le cadre d'un projet.
-> **Période :** 1 décembre – 5 décembre 2025 (5 jour)  
-> **Établissement :** La Plateforme_  
+> **Titre :** Jeu du morpion réaliser dans le cadre d'un projet
+> 
+> **Période :** 1 décembre – 5 décembre 2025 (5 jour)
+> 
+> **Établissement :** La Plateforme_ 
 
 --- 
 -  le jeu possède un mode 1 ou 2 joueur.
